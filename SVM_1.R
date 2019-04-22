@@ -16,6 +16,11 @@ for(i in colnames(X)){
 
 X$y <- y
 
+# ============================================================
+#  Setting up Training, Testing, and Validation sets
+# ============================================================
+
+
 ## 60% of the sample size for training 20% for testing and 20% for verification
 smp_size <- floor(0.6 * length(y))
 
@@ -37,6 +42,9 @@ X.ver <- X.temp[-test_ind,]
 y.test <- y.temp[-test_ind]
 
 
+# ============================================================
+#  Fitting the model
+# ============================================================
 
 fit <- svm(y~.,data=X.train,kernel='linear',cost=2)
 y.pred <- predict(fit, X.test)
@@ -46,8 +54,12 @@ rmse <- function(error)
   sqrt(mean(error^2))
 }
 
-error <- fit$residuals  # same as data$Y - predictedY
-predictionRMSE <- rmse(error)   # 5.703778
+
+# ============================================================
+#  Finding best model parameters
+# ============================================================
+error <- fit$residuals  
+predictionRMSE <- rmse(error)  
 print(predictionRMSE)
 #Grid Search
 tuneResult <- tune(svm, y ~ .,  data = X.train, ranges = list(epsilon = seq(0,1,0.1), cost = 2^(2:9)))
@@ -58,8 +70,6 @@ tunedModelY <- predict(tunedModel, X.test)
 
 error <- y.test - tunedModelY  
 
-# this value can be different on your computer
-# because the tune method  randomly shuffles the data
-tunedModelRMSE <- rmse(error)  # 2.219642  
+tunedModelRMSE <- rmse(error)  
 
 

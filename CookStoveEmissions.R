@@ -29,7 +29,7 @@ is(dat)
 names(dat)
 str(dat)
 summary(dat)
-pairs(TotalPM25ugcubicmeter_PT~OCmassugcubicmeter+ECmassugcubicmeter+TCmassugcubicmeter+ECOCmassconc+log(Mean_bcor_1)+log(Mean_bcor_2)+Mean_temp+Mean_rh+Mean_CO+Mean_CO2+Mean_MCE,data = dat)
+pairs(TotalPM25ugcubicmeter_PT~ECOCmassconc+log(Mean_bcor_1)+log(Mean_bcor_2)+Mean_temp+Mean_rh+Mean_CO+Mean_CO2+Mean_MCE,data = dat)
 cor(select(dat,TotalPM25ugcubicmeter_PT,OCmassugcubicmeter,ECmassugcubicmeter,TCmassugcubicmeter,ECOCmassconc,Mean_bcor_1,Mean_bcor_2,Mean_temp,Mean_rh,Mean_CO,Mean_CO2,Mean_MCE))
 
 # ============================================================
@@ -62,7 +62,7 @@ y.test <- y.temp[-test_ind]
 #  Variable Selection
 # ============================================================
 
-bestFeatures <- regsubsets(dat$TotalPM25ugcubicmeter_PT~OCmassugcubicmeter+ECmassugcubicmeter+TCmassugcubicmeter+ECOCmassconc+log(Mean_bcor_1)+log(Mean_bcor_2)+Mean_temp+Mean_rh+Mean_CO+Mean_CO2+Mean_MCE,data = dat,nvmax=60,method="forward")
+bestFeatures <- regsubsets(dat$TotalPM25ugcubicmeter_PT~ECOCmassconc+Mean_bcor_1+Mean_bcor_2+Mean_temp+Mean_rh+Mean_CO+Mean_CO2+Mean_MCE,data = dat,nvmax=60,method="forward")
 is(bestFeatures)
 names(bestFeatures)
 summary(bestFeatures)
@@ -77,6 +77,18 @@ coef(bestFeatures,4)
 #  Fitting the model
 # ============================================================
  
+fit.lm <- lm(y~Mean_bcor_1+Mean_rh+Mean_CO+Mean_MCE,data=X.train)
 
+summary(fit.lm)
+anova(fit.lm)
 
+par(mfrow = c(2, 2),oma = c(0, 0, 2, 0))
+plot(fit.lm)
+plot(fit.lm, id.n = NULL)                 # no id's
+plot(fit.lm, id.n = 5, labels.id = NULL)  # 5 id numbers
 
+X.train[8,]
+X.train[10,]
+X.train[7,]
+X.train[13,]
+X.train[19,]

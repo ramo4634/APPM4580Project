@@ -91,6 +91,8 @@ plot(fit.lm)
 plot(fit.lm, id.n = NULL)                 # no id's
 plot(fit.lm, id.n = 5, labels.id = NULL)  # 5 id numbers
 
+boxplot(X.train$ECOCmassconc,X.train$Mean_bcor_1,X.train$Mean_bcor_2,X.train$Mean_temp,X.train$Mean_rh,X.train$Mean_CO,X.train$Mean_CO2,X.train$Mean_MCE)
+
 X.train[8,]
 X.train[10,]
 X.train[7,]

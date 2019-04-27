@@ -2,7 +2,7 @@ library(readxl)
 library(e1071)
 
 
-filename <- #FILENAME HERE
+filename <- "P3_kitchen_area_air_quality_03_20_2019.xlsx"
 dat<- read_excel(filename)
 
 y <- dat$TotalPM25ugcubicmeter_PT 
@@ -16,13 +16,10 @@ for(i in colnames(X)){
 
 X$y <- y
 
-# ============================================================
-#  Setting up Training, Testing, and Validation sets
-# ============================================================
+## 80% of the sample size for training 20% for testing
+smp_size <- floor(0.8 * length(y))
+print(smp_size)
 
-
-## 60% of the sample size for training 20% for testing and 20% for verification
-smp_size <- floor(0.6 * length(y))
 
 set.seed(42)
 train_ind <- sample(seq_len(length(y)), size = smp_size)
@@ -33,20 +30,15 @@ y.train <- y[train_ind]
 X.temp <- X[-train_ind,]
 y.temp <- y[-train_ind]
 
-smp_size <- floor(0.5*length(y.temp))
-test_ind <- sample(seq_len(length(y.temp)), size = smp_size)
+#X.test <- X.temp[test_ind,]
+#y.test <- y.temp[test_ind]
+#X.ver <- X.temp[-test_ind,]
+#y.ver <- y.temp[-test_ind]
+X.test <- X.temp
+y.test <- y.temp
 
-X.test <- X.temp[test_ind,]
-y.test <- y.temp[test_ind]
-X.ver <- X.temp[-test_ind,]
-y.test <- y.temp[-test_ind]
 
-
-# ============================================================
-#  Fitting the model
-# ============================================================
-
-fit <- svm(y~.,data=X.train,kernel='linear',cost=2)
+fit <- svm(y~.,data=X.train,kernel='polynomial',cost=2)
 y.pred <- predict(fit, X.test)
 
 rmse <- function(error)
@@ -54,22 +46,19 @@ rmse <- function(error)
   sqrt(mean(error^2))
 }
 
-
-# ============================================================
-#  Finding best model parameters
-# ============================================================
-error <- fit$residuals  
-predictionRMSE <- rmse(error)  
+error <- fit$residuals  # same as data$Y - predictedY
+predictionRMSE <- rmse(error)   # 5.703778
 print(predictionRMSE)
 #Grid Search
-tuneResult <- tune(svm, y ~ .,  data = X.train, ranges = list(epsilon = seq(0,1,0.1), cost = 2^(2:9)))
+tuneResult <- tune(svm, y ~ .,  data = X.train, ranges = list(kernel=list('radial','linear'),epsilon = seq(0,1,0.1), cost = 2^(2:8)))
 print(tuneResult)
+plot(tuneResult)
 
 tunedModel <- tuneResult$best.model
 tunedModelY <- predict(tunedModel, X.test) 
 
 error <- y.test - tunedModelY  
 
-tunedModelRMSE <- rmse(error)  
-
+tunedModelRMSE <- rmse(tunedModel$residuals)  
+print(tunedModelRMSE)
 

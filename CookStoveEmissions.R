@@ -66,18 +66,22 @@ bestFeatures <- regsubsets(dat$TotalPM25ugcubicmeter_PT~ECOCmassconc+Mean_bcor_1
 is(bestFeatures)
 names(bestFeatures)
 summary(bestFeatures)
-print(which.min(summary(bestFeatures)$bic)) #4 features
+print(which.min(summary(bestFeatures)$bic)) #3 features
 print(which.min(summary(bestFeatures)$cp)) #4 features
-print(which.min(summary(bestFeatures)$rss)) #10 features
-print(which.max(summary(bestFeatures)$adjr2)) #7 features
+print(which.min(summary(bestFeatures)$rss)) #8 features
+print(which.max(summary(bestFeatures)$adjr2)) #8 features
 plot(bestFeatures)
-coef(bestFeatures,4)
+coef(bestFeatures,8)
 
+plot(y,dat$Mean_bcor_1)
+plot(y,log(dat$Mean_bcor_2)
 # ============================================================
 #  Fitting the model
 # ============================================================
  
-fit.lm <- lm(y~Mean_bcor_1+Mean_rh+Mean_CO+Mean_MCE,data=X.train)
+fit.lm <- lm(y~ECOCmassconc+Mean_bcor_1+Mean_bcor_2+Mean_temp+Mean_rh+Mean_CO+Mean_CO2+Mean_MCE,data=X.train)
+fit.bcor1 <- lm(y~Mean_bcor_1,data=X.train)
+fit.bcor2 <- lm(y~Mean_bcor_2,data=X.train)
 
 summary(fit.lm)
 anova(fit.lm)

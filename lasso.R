@@ -11,6 +11,7 @@ library(coefplot)
 
 filename <- "P3_kitchen_area_air_quality_03_20_2019.xlsx"
 dat<- read_excel(filename)
+dat = dat[c(-17,-18,-37),]
 
 y <- dat$TotalPM25ugcubicmeter_PT 
 feature_list = c("OCmassugcubicmeter","ECmassugcubicmeter","TCmassugcubicmeter","ECOCmassconc","Mean_bcor_1","Mean_bcor_2","Mean_temp","Mean_rh","Mean_CO","Mean_CO2","Mean_MCE","Var_bcor_1")#,"CoverageClass","season") 
@@ -47,15 +48,18 @@ y.test <- y[-train_ind]
 X.train <- as.matrix(X.train)
 X.test <- as.matrix(X.test)
 
-lasso.mod <- cv.glmnet(X.train,y.train,alpha=1,lambda=10^seq(-2,5,length.out=100)) # alpha=1 => lasso
+lasso.mod <- cv.glmnet(X.train,y.train,alpha=1,lambda=10^seq(-2,5,length.out=100),intercept=FALSE) # alpha=1 => lasso
 
+jpeg("lasso_lambda_vals.jpg")
 plot(lasso.mod,xvar="lambda")
+dev.off()
+
 lambda.opt <- lasso.mod$lambda.min
 
 
 lasso.final <- glmnet(X.train,y.train,alpha=1,lambda=lambda.opt)
 ## Predict on test data for given lambda, compare to null model
-lasso.pred <- predict(lasso.final,s=0.1,newx=as.matrix(X.test))
+lasso.pred <- predict(lasso.final,newx=as.matrix(X.test))
 
 mean( (mean(y.test) - y.test)^2 ) # null model (beta_0 is only term)
 mean( (lasso.pred - y.test)^2 ) # lasso predictions
@@ -65,9 +69,9 @@ rmse <- function(error)
 }
 
 lasso.rmse = rmse(y.test-lasso.pred)
-
+print(lasso.rmse)
 #jpeg("coef_plot_lasso.jpg")
-coefplot(lasso.final)
+#coefplot(lasso.final)
 #dev.off()
 
 

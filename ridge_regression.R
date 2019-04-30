@@ -3,6 +3,7 @@
 ################################################################################################
 library(readxl)
 library(glmnet)
+library(coefplot)
 
 #========================================
 # Setting up the data
@@ -10,6 +11,7 @@ library(glmnet)
 
 filename <- "P3_kitchen_area_air_quality_03_20_2019.xlsx"
 dat<- read_excel(filename)
+dat = dat[c(-17,-18,-37),]
 
 y <- dat$TotalPM25ugcubicmeter_PT 
 feature_list = c("OCmassugcubicmeter","ECmassugcubicmeter","TCmassugcubicmeter","ECOCmassconc","Mean_bcor_1","Mean_bcor_2","Mean_temp","Mean_rh","Mean_CO","Mean_CO2","Mean_MCE","Var_bcor_1")#,"CoverageClass","season") 
@@ -18,7 +20,7 @@ X <- dat[feature_list]
 for(i in colnames(X)){
   X[[i]][is.na(X[[i]])] <- mean(X[[i]],na.rm=TRUE)
 }
-X$y <- y
+#X$y <- y
 
 
 #========================================
@@ -27,7 +29,6 @@ X$y <- y
 
 ## 80% of the sample size for training 20% for testing
 smp_size <- floor(0.8 * length(y))
-
 
 set.seed(42)
 train_ind <- sample(seq_len(length(y)), size = smp_size)
@@ -48,10 +49,12 @@ y.train <-as.matrix(y.train)
 X.test <- as.matrix(X.test)
 y.test <- as.matrix(y.test)
 
-lambdas <- 10^seq(3, -2, by = -.1)
-rr.test <- cv.glmnet(X.train,y.train,alpha=0,lambda=lambdas)
+lambdas <- 10^seq(10, -2, by = -.1)
+rr.test <- cv.glmnet(X.train,y.train,alpha=0,lambda=lambdas,intercept=FALSE)
 lambda.opt <- rr.test$lambda.min
+jpeg("rr_lambda_vals.jpg")
 plot(rr.test)
+dev.off()
 
 rr.final <- glmnet(X.train,y.train,alpha=0,lambda=lambda.opt)
 
@@ -64,6 +67,6 @@ rmse <- function(error)
   sqrt(mean(error^2))
 }
 
-rrRMSE = rmse(y.test-lasso.pred)
+rrRMSE = rmse(y.test-rr.pred)
 print(rrRMSE)
 

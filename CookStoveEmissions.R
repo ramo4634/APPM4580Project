@@ -30,6 +30,7 @@ names(dat)
 str(dat)
 summary(dat)
 pairs(TotalPM25ugcubicmeter_PT~ECOCmassconc+log(Mean_bcor_1)+log(Mean_bcor_2)+Mean_temp+Mean_rh+Mean_CO+Mean_CO2+Mean_MCE,data = dat)
+pairs(TotalPM25ugcubicmeter_PT~ECOCmassconc+Mean_bcor_1+Mean_bcor_2+Mean_temp+Mean_rh+Mean_CO+Mean_CO2+Mean_MCE,data = dat)
 cor(select(dat,TotalPM25ugcubicmeter_PT,OCmassugcubicmeter,ECmassugcubicmeter,TCmassugcubicmeter,ECOCmassconc,Mean_bcor_1,Mean_bcor_2,Mean_temp,Mean_rh,Mean_CO,Mean_CO2,Mean_MCE))
 
 # ============================================================
@@ -92,7 +93,17 @@ plot(fit.lm, id.n = NULL)                 # no id's
 plot(fit.lm, id.n = 5, labels.id = NULL)  # 5 id numbers
 
 boxplot(X.train$ECOCmassconc,X.train$Mean_bcor_1,X.train$Mean_bcor_2,X.train$Mean_temp,X.train$Mean_rh,X.train$Mean_CO,X.train$Mean_CO2,X.train$Mean_MCE)
-
+boxplot(X.train$Mean_bcor_1,X.train$Mean_bcor_2)
+OutVals = boxplot(X.train$Mean_bcor_1)$out
+which(X.train$Mean_bcor_1 %in% OutVals)
+OutVals = boxplot(X.train$Mean_bcor_2)$out
+which(X.train$Mean_bcor_2 %in% OutVals)
+mybox <- boxplot(X.train$Mean_bcor_1,X.train$Mean_bcor_2)
+print(head(mybox))
+X.train[6,]
+X.train[12,]
+X.train[21,]
+#####
 X.train[8,]
 X.train[10,]
 X.train[7,]
